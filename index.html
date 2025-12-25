@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ultima Translator | Ultimate Edition</title>
     <meta name="description" content="مترجم هوشمند با قابلیت پشتیبانی از چندین API و سوییچ خودکار">
-    <!-- Icon Placeholder -->
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <!-- Icon -->
     <link rel="icon" type="image/png" href="icon.png">
     
     <!-- Tailwind CSS -->
@@ -226,18 +234,16 @@
                     <button onclick="setProvider('openrouter')" id="tab-or" class="flex-1 py-4 rounded-[1.5rem] text-sm font-black transition-all opacity-50">OpenRouter</button>
                 </div>
 
-                <!-- Gemini Config with Dynamic Inputs -->
+                <!-- Gemini Config -->
                 <div id="config-gemini" class="space-y-4 pt-2">
                     <div class="flex justify-between items-center px-2">
-                        <label class="font-bold text-xs">Gemini API Keys (Multi-Support)</label>
+                        <label class="font-bold text-xs">Gemini API Keys</label>
                         <div class="flex gap-2">
                             <button onclick="addKeyInput('gemini')" class="text-[10px] font-black bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">+ ADD KEY</button>
                             <button onclick="fetchModels('gemini')" class="text-[10px] font-black bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">SYNC</button>
                         </div>
                     </div>
-                    <div id="geminiKeysContainer" class="space-y-2">
-                        <!-- Keys injected here -->
-                    </div>
+                    <div id="geminiKeysContainer" class="space-y-2"></div>
                     
                     <div class="space-y-2 px-2">
                         <label class="font-bold text-xs opacity-60">Model</label>
@@ -248,18 +254,16 @@
                     </div>
                 </div>
 
-                <!-- OpenRouter Config with Dynamic Inputs -->
+                <!-- OpenRouter Config -->
                 <div id="config-or" class="space-y-4 pt-2 hidden">
                     <div class="flex justify-between items-center px-2">
-                        <label class="font-bold text-xs">OpenRouter Keys (Multi-Support)</label>
+                        <label class="font-bold text-xs">OpenRouter Keys</label>
                         <div class="flex gap-2">
                             <button onclick="addKeyInput('or')" class="text-[10px] font-black bg-purple-50 dark:bg-purple-900/30 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-600 hover:text-white transition-all">+ ADD KEY</button>
                             <button onclick="fetchModels('or')" class="text-[10px] font-black bg-purple-50 dark:bg-purple-900/30 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-600 hover:text-white transition-all">SYNC</button>
                         </div>
                     </div>
-                    <div id="orKeysContainer" class="space-y-2">
-                         <!-- Keys injected here -->
-                    </div>
+                    <div id="orKeysContainer" class="space-y-2"></div>
                     
                     <div class="space-y-2 px-2">
                         <label class="font-bold text-xs opacity-60">Model</label>
@@ -292,5 +296,13 @@
 
     <!-- Scripts -->
     <script src="script.js"></script>
+    <script>
+        // PWA Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.error('Service Worker failed', err));
+        }
+    </script>
 </body>
 </html>

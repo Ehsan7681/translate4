@@ -5,8 +5,8 @@ let state = {
     provider: 'gemini',
     history: JSON.parse(localStorage.getItem('ultima_history') || '[]'),
     theme: localStorage.getItem('ultima_theme') || 'system',
-    geminiKeys: [''], // Array of keys
-    orKeys: ['']      // Array of keys
+    geminiKeys: [''], 
+    orKeys: ['']
 };
 
 // --- Theme Logic ---
