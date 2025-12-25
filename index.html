@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultima Translator | Ultimate Edition</title>
-    <meta name="description" content="مترجم هوشمند با قابلیت ذخیره‌سازی کامل اطلاعات و پشتیبانی از چندین API">
+    <title>Ultima Translator</title>
+    <meta name="description" content="مترجم هوشمند با قابلیت ذخیره‌سازی کامل و پشتیبانی از چندین API">
     
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
@@ -40,12 +40,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Custom Styles -->
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-[#f1f5f9] dark:bg-[#020617] text-slate-800 dark:text-slate-100 min-h-screen pb-40 overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 
-    <!-- Background Decoration -->
+    <!-- Background -->
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div class="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-indigo-500/10 dark:bg-indigo-900/20 rounded-full blur-[120px] animate-float"></div>
         <div class="absolute bottom-[-10%] left-[-10%] w-[700px] h-[700px] bg-purple-500/10 dark:bg-purple-900/20 rounded-full blur-[140px] animate-float" style="animation-delay: -3s;"></div>
@@ -59,7 +59,7 @@
                     <i data-lucide="brain-circuit" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Ultima Translate</h1>
+                    <h1 class="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Ultima Translator</h1>
                     <div class="flex items-center gap-1.5 opacity-60">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                         <p class="text-[9px] font-bold uppercase tracking-[0.2em]">Designed by Ehsan Shamsi</p>
@@ -79,28 +79,23 @@
         <section id="translateSection" class="space-y-6 animate-in fade-in duration-500">
             <div class="glass-panel p-3 rounded-[2.5rem] flex items-center gap-2">
                 <div class="flex-1 group">
-                    <div class="text-center text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mb-1 opacity-70 group-hover:opacity-100 transition-opacity">زبان مبدأ</div>
-                    <div class="relative bg-white/50 dark:bg-slate-800/50 rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-colors">
+                    <div class="text-center text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mb-1 opacity-70">زبان مبدأ</div>
+                    <div class="relative bg-white/50 dark:bg-slate-800/50 rounded-2xl">
                         <select id="sourceLang" onchange="saveState()" class="w-full appearance-none bg-transparent py-3 px-4 text-center font-bold text-sm cursor-pointer dark:text-white outline-none">
                             <option value="auto">تشخیص خودکار</option>
                             <option disabled>──────────</option>
-                            <option value="fa">فارسی (Persian)</option>
-                            <option value="en">English (انگلیسی)</option>
-                            <option value="ar">العربية (Arabic)</option>
-                            <option value="tr">Türkçe (Turkish)</option>
-                            <option value="de">Deutsch (German)</option>
-                            <option value="fr">Français (French)</option>
-                            <option value="es">Español (Spanish)</option>
-                            <option value="it">Italiano (Italian)</option>
-                            <option value="ru">Русский (Russian)</option>
-                            <option value="zh">中文 (Chinese)</option>
-                            <option value="ja">日本語 (Japanese)</option>
-                            <option value="ko">한국어 (Korean)</option>
-                            <option value="hi">हिन्दी (Hindi)</option>
-                            <option value="pt">Português (Portuguese)</option>
-                            <option value="nl">Nederlands (Dutch)</option>
-                            <option value="sv">Svenska (Swedish)</option>
-                            <option value="pl">Polski (Polish)</option>
+                            <option value="fa">فارسی</option>
+                            <option value="en">English</option>
+                            <option value="ar">العربية</option>
+                            <option value="tr">Türkçe</option>
+                            <option value="de">Deutsch</option>
+                            <option value="fr">Français</option>
+                            <option value="es">Español</option>
+                            <option value="it">Italiano</option>
+                            <option value="ru">Русский</option>
+                            <option value="zh">中文</option>
+                            <option value="ja">日本語</option>
+                            <option value="ko">한국어</option>
                         </select>
                     </div>
                 </div>
@@ -110,34 +105,25 @@
                 </button>
 
                 <div class="flex-1 group">
-                    <div class="text-center text-[10px] font-bold text-purple-500 dark:text-purple-400 uppercase tracking-wider mb-1 opacity-70 group-hover:opacity-100 transition-opacity">زبان مقصد</div>
-                    <div class="relative bg-white/50 dark:bg-slate-800/50 rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-colors">
+                    <div class="text-center text-[10px] font-bold text-purple-500 dark:text-purple-400 uppercase tracking-wider mb-1 opacity-70">زبان مقصد</div>
+                    <div class="relative bg-white/50 dark:bg-slate-800/50 rounded-2xl">
                         <select id="targetLang" onchange="saveState(); updateDir();" class="w-full appearance-none bg-transparent py-3 px-4 text-center font-bold text-sm cursor-pointer dark:text-white outline-none">
-                            <option value="en">English (انگلیسی)</option>
-                            <option value="fa">فارسی (Persian)</option>
+                            <option value="en">English</option>
+                            <option value="fa">فارسی</option>
                             <option disabled>──────────</option>
-                            <option value="ar">العربية (Arabic)</option>
-                            <option value="tr">Türkçe (Turkish)</option>
-                            <option value="de">Deutsch (German)</option>
-                            <option value="fr">Français (French)</option>
-                            <option value="es">Español (Spanish)</option>
-                            <option value="it">Italiano (Italian)</option>
-                            <option value="ru">Русский (Russian)</option>
-                            <option value="zh">中文 (Chinese)</option>
-                            <option value="ja">日本語 (Japanese)</option>
-                            <option value="ko">한국어 (Korean)</option>
-                            <option value="hi">हिन्दी (Hindi)</option>
-                            <option value="pt">Português (Portuguese)</option>
-                            <option value="nl">Nederlands (Dutch)</option>
-                            <option value="sv">Svenska (Swedish)</option>
-                            <option value="pl">Polski (Polish)</option>
+                            <option value="ar">العربية</option>
+                            <option value="tr">Türkçe</option>
+                            <option value="de">Deutsch</option>
+                            <option value="fr">Français</option>
+                            <option value="es">Español</option>
+                            <option value="ru">Русский</option>
+                            <option value="ja">日本語</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div class="input-box rounded-[2.5rem] p-1 relative group">
-                <!-- Added oninput to save text changes immediately -->
                 <textarea id="sourceText" oninput="saveState()" rows="6" class="w-full bg-transparent p-6 text-lg outline-none resize-none font-medium placeholder:text-slate-400 dark:text-white leading-relaxed" placeholder="متن خود را اینجا تایپ کنید..."></textarea>
                 <div class="px-6 pb-4 flex justify-between items-center">
                     <button onclick="clearText()" class="p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors tooltip" title="پاک کردن">
@@ -164,7 +150,7 @@
                         <i data-lucide="bot" class="w-32 h-32"></i>
                     </div>
                     <div id="resultContainer" class="p-8 max-h-[500px] overflow-y-auto scroller relative z-10" dir="ltr">
-                        <p id="resultText" class="text-xl leading-relaxed opacity-40 font-medium italic">نتیجه هوشمند در اینجا ظاهر می‌شود...</p>
+                        <p id="resultText" class="text-xl leading-relaxed opacity-40 font-medium italic">...</p>
                     </div>
                     <div class="px-6 pb-6 flex justify-end">
                         <button onclick="copyResult()" class="p-4 bg-indigo-600 text-white rounded-[1.2rem] shadow-xl shadow-indigo-600/30 hover:scale-110 active:scale-95 transition-all">
@@ -175,48 +161,41 @@
             </div>
         </section>
 
-        <!-- HISTORY SCREEN -->
+        <!-- HISTORY -->
         <section id="historySection" class="hidden space-y-6">
             <div class="glass-panel p-6 rounded-[2.5rem] flex justify-between items-center sticky top-24 z-20">
                 <h2 class="text-xl font-black flex items-center gap-3">
                     <i data-lucide="history" class="text-indigo-500"></i>
-                    تاریخچه ترجمه‌ها
+                    تاریخچه
                 </h2>
-                <button onclick="clearHistory()" class="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs font-black rounded-xl hover:bg-red-500 hover:text-white transition-all">حذف همه</button>
+                <button onclick="clearHistory()" class="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs font-black rounded-xl hover:bg-red-500 transition-all">حذف همه</button>
             </div>
             <div id="historyList" class="grid gap-5 pb-8"></div>
             <div id="emptyState" class="py-24 text-center opacity-30 hidden">
                 <i data-lucide="file-x-2" class="w-24 h-24 mx-auto mb-6"></i>
-                <p class="font-black text-lg">هنوز ترجمه‌ای انجام نشده است</p>
+                <p class="font-black text-lg">خالی</p>
             </div>
         </section>
 
-        <!-- SETTINGS SCREEN -->
+        <!-- SETTINGS -->
         <section id="settingsSection" class="hidden space-y-8">
             <div class="glass-panel p-6 rounded-[2.5rem] space-y-4">
                  <h2 class="text-lg font-black flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
-                    لحن و استایل ترجمه
+                    لحن ترجمه
                 </h2>
                 <div class="relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                     <select id="translationTone" onchange="saveState()" class="w-full bg-transparent p-5 text-sm font-bold outline-none cursor-pointer dark:text-white appearance-none">
-                        <option value="neutral">خنثی (پیش‌فرض)</option>
-                        <option value="formal">رسمی و اداری (Formal)</option>
-                        <option value="friendly">دوستانه و صمیمی (Friendly)</option>
-                        <option value="academic">علمی و آکادمیک (Academic)</option>
-                        <option value="business">تجاری و کسب‌وکار (Business)</option>
-                        <option value="slang">عامیانه و خیابانی (Slang)</option>
-                        <option value="creative">خلاقانه و داستانی (Creative)</option>
-                        <option value="poetic">شاعرانه و ادبی (Poetic)</option>
-                        <option value="journalistic">روزنامه‌نگاری و خبری (Journalistic)</option>
-                        <option value="medical">پزشکی و سلامت (Medical)</option>
-                        <option value="legal">حقوقی و قضایی (Legal)</option>
-                        <option value="persuasive">متقاعدکننده و تبلیغاتی (Persuasive)</option>
-                        <option value="emotional">احساسی (Emotional)</option>
-                        <option value="witty">شوخ‌طبع و زیرکانه (Witty)</option>
-                        <option value="sarcastic">کنایه‌آمیز (Sarcastic)</option>
-                        <option value="brief">خلاصه و مفید (Brief)</option>
-                        <option value="detailed">با جزئیات کامل (Detailed)</option>
+                        <option value="neutral">خنثی (معمولی)</option>
+                        <option value="formal">رسمی و اداری</option>
+                        <option value="friendly">دوستانه و صمیمی</option>
+                        <option value="academic">علمی و آکادمیک</option>
+                        <option value="slang">عامیانه و خیابانی</option>
+                        <option value="creative">خلاقانه و ادبی</option>
+                        <option value="business">تجاری</option>
+                        <option value="poetic">شاعرانه</option>
+                        <option value="humorous">طنزآمیز</option>
+                        <option value="brief">خلاصه و کوتاه</option>
                     </select>
                     <i data-lucide="chevron-down" class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 pointer-events-none"></i>
                 </div>
@@ -229,21 +208,20 @@
                 </h2>
                 
                 <div class="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] flex gap-2">
-                    <button onclick="setProvider('gemini')" id="tab-gemini" class="flex-1 py-4 rounded-[1.5rem] text-sm font-black transition-all bg-indigo-600 text-white shadow-lg">Google Gemini</button>
+                    <button onclick="setProvider('gemini')" id="tab-gemini" class="flex-1 py-4 rounded-[1.5rem] text-sm font-black transition-all bg-indigo-600 text-white shadow-lg">Gemini</button>
                     <button onclick="setProvider('openrouter')" id="tab-or" class="flex-1 py-4 rounded-[1.5rem] text-sm font-black transition-all opacity-50">OpenRouter</button>
                 </div>
 
                 <!-- Gemini Config -->
                 <div id="config-gemini" class="space-y-4 pt-2">
                     <div class="flex justify-between items-center px-2">
-                        <label class="font-bold text-xs">Gemini API Keys (Multi-Support)</label>
+                        <label class="font-bold text-xs">API Keys (Multi-Key)</label>
                         <div class="flex gap-2">
-                            <button onclick="addKeyInput('gemini')" class="text-[10px] font-black bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">+ ADD KEY</button>
+                            <button onclick="addKeyInput('gemini')" class="text-[10px] font-black bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">+ KEY</button>
                             <button onclick="fetchModels('gemini')" class="text-[10px] font-black bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">SYNC</button>
                         </div>
                     </div>
-                    <div id="geminiKeysContainer" class="space-y-2"></div>
-                    
+                    <div id="geminiKeysContainer" class="space-y-3"></div>
                     <div class="space-y-2 px-2">
                         <label class="font-bold text-xs opacity-60">Model</label>
                         <select id="geminiModel" onchange="saveState()" class="w-full bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl outline-none font-bold text-xs">
@@ -256,14 +234,13 @@
                 <!-- OpenRouter Config -->
                 <div id="config-or" class="space-y-4 pt-2 hidden">
                     <div class="flex justify-between items-center px-2">
-                        <label class="font-bold text-xs">OpenRouter Keys (Multi-Support)</label>
+                        <label class="font-bold text-xs">API Keys (Multi-Key)</label>
                         <div class="flex gap-2">
-                            <button onclick="addKeyInput('or')" class="text-[10px] font-black bg-purple-50 dark:bg-purple-900/30 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-600 hover:text-white transition-all">+ ADD KEY</button>
+                            <button onclick="addKeyInput('or')" class="text-[10px] font-black bg-purple-50 dark:bg-purple-900/30 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-600 hover:text-white transition-all">+ KEY</button>
                             <button onclick="fetchModels('or')" class="text-[10px] font-black bg-purple-50 dark:bg-purple-900/30 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-600 hover:text-white transition-all">SYNC</button>
                         </div>
                     </div>
-                    <div id="orKeysContainer" class="space-y-2"></div>
-                    
+                    <div id="orKeysContainer" class="space-y-3"></div>
                     <div class="space-y-2 px-2">
                         <label class="font-bold text-xs opacity-60">Model</label>
                         <select id="orModel" onchange="saveState()" class="w-full bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl outline-none font-bold text-xs">
@@ -275,7 +252,7 @@
         </section>
     </main>
 
-    <!-- ULTRA DOCK NAVIGATION -->
+    <!-- DOCK -->
     <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 dock-container px-6 py-2 z-[100] flex items-center gap-6 shadow-dock">
         <button onclick="switchTab('translate')" id="nav-translate" class="dock-item active">
             <i data-lucide="languages" class="w-7 h-7"></i>
@@ -288,19 +265,11 @@
         </button>
     </nav>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 glass-panel bg-slate-900/90 dark:bg-white/90 text-white dark:text-black px-8 py-4 rounded-2xl text-sm font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 transform scale-90 z-[200]">
-        Operation Successful
-    </div>
+    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 glass-panel bg-slate-900/90 dark:bg-white/90 text-white dark:text-black px-8 py-4 rounded-2xl text-sm font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 transform scale-90 z-[200]">OK</div>
 
-    <!-- Scripts -->
     <script src="script.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.error('Service Worker failed', err));
-        }
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     </script>
 </body>
 </html>

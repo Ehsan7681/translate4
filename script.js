@@ -1,17 +1,21 @@
 lucide.createIcons();
 
-// --- State Management ---
+// --- Configuration ---
+const STORAGE_KEY = 'ultima_data_v3';
+
 let state = {
     provider: 'gemini',
-    history: JSON.parse(localStorage.getItem('ultima_history') || '[]'),
-    theme: localStorage.getItem('ultima_theme') || 'system',
+    history: [],
+    theme: 'system',
     geminiKeys: [''], 
     orKeys: ['']
 };
 
-// --- Theme Logic ---
+// --- Theme Engine ---
 function initTheme() {
-    const isDark = state.theme === 'dark' || (state.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const savedTheme = localStorage.getItem('ultima_theme') || 'system';
+    state.theme = savedTheme;
+    const isDark = savedTheme === 'dark' || (savedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', isDark);
     document.getElementById('sunIcon').classList.toggle('hidden', isDark);
     document.getElementById('moonIcon').classList.toggle('hidden', !isDark);
@@ -25,7 +29,7 @@ document.getElementById('themeToggle').addEventListener('click', () => {
 });
 initTheme();
 
-// --- Navigation Logic ---
+// --- Navigation ---
 function switchTab(tabId) {
     ['translate', 'history', 'settings'].forEach(id => {
         document.getElementById(`${id}Section`).classList.add('hidden');
@@ -33,7 +37,6 @@ function switchTab(tabId) {
     });
     document.getElementById(`${tabId}Section`).classList.remove('hidden');
     document.getElementById(`nav-${tabId}`).classList.add('active');
-    
     if (tabId === 'history') renderHistory();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -59,312 +62,133 @@ function setProvider(p) {
     saveState();
 }
 
-// --- Key Management Logic ---
+// --- Key Management (Fixed) ---
 function addKeyInput(type, value = '') {
     const container = document.getElementById(type === 'gemini' ? 'geminiKeysContainer' : 'orKeysContainer');
-    const div = document.createElement('div');
-    div.className = "flex gap-2 items-center";
-    div.innerHTML = `
-        <input type="password" value="${value}" oninput="saveState()" class="${type}-key-input w-full bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-${type === 'gemini' ? 'indigo' : 'purple'}-500 font-mono text-sm" placeholder="Enter API Key...">
-        <button onclick="this.parentElement.remove(); saveState();" class="p-4 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
-            <i data-lucide="trash" class="w-4 h-4"></i>
-        </button>
-    `;
-    container.appendChild(div);
+    
+    // Create elements using DOM API to ensure value binding works
+    const wrapper = document.createElement('div');
+    wrapper.className = "flex gap-2 items-center animate-in fade-in slide-in-from-top-2 duration-300";
+    
+    const input = document.createElement('input');
+    input.type = "password";
+    input.className = `${type}-key-input w-full bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-${type === 'gemini' ? 'indigo' : 'purple'}-500 font-mono text-sm shadow-inner`;
+    input.placeholder = "Enter API Key...";
+    input.value = value; // Directly set property
+    input.oninput = saveState; // Auto save on typing
+
+    const btn = document.createElement('button');
+    btn.className = "p-4 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm";
+    btn.innerHTML = `<i data-lucide="trash" class="w-4 h-4"></i>`;
+    btn.onclick = () => { wrapper.remove(); saveState(); };
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(btn);
+    container.appendChild(wrapper);
+    
     lucide.createIcons();
-}
-
-function renderKeys() {
-    const gContainer = document.getElementById('geminiKeysContainer');
-    const oContainer = document.getElementById('orKeysContainer');
-    gContainer.innerHTML = '';
-    oContainer.innerHTML = '';
-
-    if (state.geminiKeys.length === 0) state.geminiKeys = [''];
-    if (state.orKeys.length === 0) state.orKeys = [''];
-
-    state.geminiKeys.forEach(k => addKeyInput('gemini', k));
-    state.orKeys.forEach(k => addKeyInput('or', k));
 }
 
 function getKeys(type) {
-    return Array.from(document.querySelectorAll(`.${type}-key-input`))
-                .map(input => input.value.trim())
-                .filter(k => k !== "");
+    // Return all keys including empty ones so user doesn't lose empty fields while typing
+    return Array.from(document.querySelectorAll(`.${type}-key-input`)).map(i => i.value);
 }
 
-// --- Persistence ---
+// --- Persistence Engine ---
 function saveState() {
-    state.geminiKeys = getKeys('gemini');
-    state.orKeys = getKeys('or');
-
-    const data = {
-        geminiKeys: state.geminiKeys,
-        geminiModel: document.getElementById('geminiModel').value,
-        orKeys: state.orKeys,
-        orModel: document.getElementById('orModel').value,
-        provider: state.provider,
-        sourceLang: document.getElementById('sourceLang').value,
-        targetLang: document.getElementById('targetLang').value,
-        tone: document.getElementById('translationTone').value,
-        gList: document.getElementById('geminiModel').innerHTML,
-        oList: document.getElementById('orModel').innerHTML,
-        // Saving Current Texts
-        sourceText: document.getElementById('sourceText').value,
-        resultText: document.getElementById('resultText').innerText,
-        resultVisible: !document.getElementById('resultWrapper').classList.contains('hidden')
-    };
-    localStorage.setItem('ultima_settings_final', JSON.stringify(data));
+    try {
+        const data = {
+            geminiKeys: getKeys('gemini').filter(k => k.trim() !== ''), // Save only valid keys
+            orKeys: getKeys('or').filter(k => k.trim() !== ''),
+            geminiModel: document.getElementById('geminiModel').value,
+            orModel: document.getElementById('orModel').value,
+            provider: state.provider,
+            sourceLang: document.getElementById('sourceLang').value,
+            targetLang: document.getElementById('targetLang').value,
+            tone: document.getElementById('translationTone').value,
+            gList: document.getElementById('geminiModel').innerHTML,
+            oList: document.getElementById('orModel').innerHTML,
+            history: state.history,
+            // Texts
+            sourceText: document.getElementById('sourceText').value,
+            resultText: document.getElementById('resultText').innerText,
+            isResultVisible: !document.getElementById('resultWrapper').classList.contains('hidden')
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) { console.error("Save failed", e); }
 }
 
 function loadState() {
-    const data = JSON.parse(localStorage.getItem('ultima_settings_final'));
-    if (data) {
-        state.geminiKeys = data.geminiKeys || [''];
-        state.orKeys = data.orKeys || [''];
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+            // First run defaults
+            addKeyInput('gemini'); 
+            addKeyInput('or');
+            return;
+        }
+
+        const data = JSON.parse(raw);
         
+        // Restore Keys
+        const gKeys = (data.geminiKeys && data.geminiKeys.length) ? data.geminiKeys : [''];
+        document.getElementById('geminiKeysContainer').innerHTML = '';
+        gKeys.forEach(k => addKeyInput('gemini', k));
+
+        const oKeys = (data.orKeys && data.orKeys.length) ? data.orKeys : [''];
+        document.getElementById('orKeysContainer').innerHTML = '';
+        oKeys.forEach(k => addKeyInput('or', k));
+
+        // Restore Models Lists
         if (data.gList) document.getElementById('geminiModel').innerHTML = data.gList;
         if (data.oList) document.getElementById('orModel').innerHTML = data.oList;
 
-        document.getElementById('geminiModel').value = data.geminiModel;
-        document.getElementById('orModel').value = data.orModel;
-        document.getElementById('sourceLang').value = data.sourceLang;
-        document.getElementById('targetLang').value = data.targetLang;
-        document.getElementById('translationTone').value = data.tone || 'neutral';
+        // Restore Settings
+        if(data.geminiModel) document.getElementById('geminiModel').value = data.geminiModel;
+        if(data.orModel) document.getElementById('orModel').value = data.orModel;
+        if(data.sourceLang) document.getElementById('sourceLang').value = data.sourceLang;
+        if(data.targetLang) document.getElementById('targetLang').value = data.targetLang;
+        if(data.tone) document.getElementById('translationTone').value = data.tone;
         
+        // Restore Provider
+        setProvider(data.provider || 'gemini');
+
+        // Restore History
+        state.history = data.history || [];
+
         // Restore Texts
         if(data.sourceText) document.getElementById('sourceText').value = data.sourceText;
-        if(data.resultText && data.resultText !== "نتیجه هوشمند در اینجا ظاهر می‌شود...") {
-            document.getElementById('resultText').innerText = data.resultText;
-            document.getElementById('resultText').classList.remove('opacity-40', 'italic');
-            document.getElementById('resultText').classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
+        if(data.resultText && data.resultText !== '...') {
+            const out = document.getElementById('resultText');
+            out.innerText = data.resultText;
+            out.classList.remove('opacity-40', 'italic');
+            out.classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
         }
-        if(data.resultVisible && data.sourceText) {
+        if(data.isResultVisible && data.sourceText) {
             document.getElementById('resultWrapper').classList.remove('hidden');
         }
 
-        setProvider(data.provider || 'gemini');
+        updateDir();
+
+    } catch (e) {
+        console.error("Load failed", e);
+        // Fallback
+        addKeyInput('gemini');
+        addKeyInput('or');
     }
-    renderKeys();
-    updateDir();
 }
+
+// Initialize on Load
 window.addEventListener('DOMContentLoaded', loadState);
 
-// --- Swap Language Logic ---
+// --- Core App Logic ---
 function swapLanguages() {
-    const sourceSelect = document.getElementById('sourceLang');
-    const targetSelect = document.getElementById('targetLang');
-    
-    if (sourceSelect.value === 'auto') {
-        toast("زبان 'خودکار' قابل جابجایی نیست");
-        return;
-    }
-
-    const temp = sourceSelect.value;
-    sourceSelect.value = targetSelect.value;
-    targetSelect.value = temp;
-
+    const s = document.getElementById('sourceLang');
+    const t = document.getElementById('targetLang');
+    if (s.value === 'auto') return toast("زبان خودکار جابجا نمی‌شود");
+    [s.value, t.value] = [t.value, s.value];
     saveState();
     updateDir();
-    toast("زبان‌ها جابجا شدند");
-}
-
-// --- Core Translation Logic ---
-document.getElementById('translateBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('translateBtn');
-    const src = document.getElementById('sourceText').value.trim();
-    const from = document.getElementById('sourceLang').value;
-    const to = document.getElementById('targetLang').value;
-    const tone = document.getElementById('translationTone').value;
-    const output = document.getElementById('resultText');
-    const resultWrapper = document.getElementById('resultWrapper');
-
-    if (!src) return toast("لطفاً متنی وارد کنید");
-
-    btn.disabled = true;
-    btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin w-6 h-6"></i> در حال پردازش...`;
-    lucide.createIcons();
-
-    const prompt = `Translate the following text from "${from}" to "${to}".
-    Tone: ${tone}.
-    Output ONLY the translation.
-    Text: ${src}`;
-
-    try {
-        let result = "";
-        if (state.provider === 'gemini') {
-            result = await callGemini(prompt);
-        } else {
-            result = await callOpenRouter(prompt);
-        }
-        
-        resultWrapper.classList.remove('hidden');
-        output.innerText = result;
-        output.classList.remove('opacity-40', 'italic');
-        output.classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
-        
-        saveState(); // Save result immediately
-
-        state.history.unshift({
-            id: Date.now(),
-            src, res: result, from, to, date: new Date().toLocaleTimeString('fa-IR')
-        });
-        if(state.history.length > 50) state.history.pop();
-        localStorage.setItem('ultima_history', JSON.stringify(state.history));
-
-    } catch (err) {
-        console.error(err);
-        output.innerText = "خطا در برقراری ارتباط. لطفاً تنظیمات API را بررسی کنید.";
-        resultWrapper.classList.remove('hidden');
-        toast("خطا در ترجمه (تمام کلیدها تست شدند)");
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<span class="relative z-10 flex items-center gap-3"><i data-lucide="zap" class="w-6 h-6"></i> ترجمه هوشمند</span><div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>`;
-        lucide.createIcons();
-    }
-});
-
-// --- API Calls with Failover ---
-async function callGemini(prompt) {
-    const keys = getKeys('gemini');
-    const model = document.getElementById('geminiModel').value;
-    
-    if (keys.length === 0) throw new Error("No Gemini Keys Provided");
-
-    for (const key of keys) {
-        try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            return data.candidates[0].content.parts[0].text.trim();
-        } catch (e) {
-            console.warn(`Key failed, trying next... Error: ${e.message}`);
-            continue; 
-        }
-    }
-    throw new Error("All Gemini keys failed");
-}
-
-async function callOpenRouter(prompt) {
-    const keys = getKeys('or');
-    const model = document.getElementById('orModel').value;
-
-    if (keys.length === 0) throw new Error("No OpenRouter Keys Provided");
-
-    for (const key of keys) {
-        try {
-            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }] })
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            return data.choices[0].message.content.trim();
-        } catch (e) {
-            console.warn(`Key failed, trying next... Error: ${e.message}`);
-            continue;
-        }
-    }
-    throw new Error("All OpenRouter keys failed");
-}
-
-// --- History & Utils ---
-function renderHistory() {
-    const list = document.getElementById('historyList');
-    const empty = document.getElementById('emptyState');
-    list.innerHTML = '';
-    
-    if (state.history.length === 0) {
-        empty.classList.remove('hidden');
-        return;
-    }
-    empty.classList.add('hidden');
-
-    state.history.forEach(h => {
-        const el = document.createElement('div');
-        el.className = "glass-panel p-6 rounded-[2rem] space-y-3 relative group transition-all hover:scale-[1.01] hover:shadow-xl";
-        el.innerHTML = `
-            <div class="flex justify-between items-center opacity-40 text-[10px] font-black uppercase tracking-widest">
-                <span>${h.from} <i data-lucide="arrow-right" class="inline w-3 h-3"></i> ${h.to}</span>
-                <span>${h.date}</span>
-            </div>
-            <p class="text-xs opacity-60 line-clamp-1 border-r-2 border-indigo-500 pr-2">${h.src}</p>
-            <p class="text-lg font-bold text-indigo-600 dark:text-indigo-400 leading-relaxed">${h.res}</p>
-            <div class="flex gap-3 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onclick="restoreHistory(${h.id})" class="text-xs font-black bg-indigo-600 text-white px-5 py-2.5 rounded-xl shadow-lg">استفاده</button>
-                <button onclick="deleteHistoryItem(${h.id})" class="text-xs font-black text-red-500 border border-red-500/20 px-5 py-2.5 rounded-xl hover:bg-red-50">حذف</button>
-            </div>
-        `;
-        list.appendChild(el);
-    });
-    lucide.createIcons();
-}
-
-function restoreHistory(id) {
-    const h = state.history.find(x => x.id === id);
-    if (h) {
-        document.getElementById('sourceText').value = h.src;
-        document.getElementById('resultText').innerText = h.res;
-        document.getElementById('sourceLang').value = h.from;
-        document.getElementById('targetLang').value = h.to;
-        document.getElementById('resultWrapper').classList.remove('hidden');
-        
-        // Ensure result text is styled correctly upon restore
-        const out = document.getElementById('resultText');
-        out.classList.remove('opacity-40', 'italic');
-        out.classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
-
-        updateDir();
-        switchTab('translate');
-        saveState(); // Save current state as restored
-    }
-}
-
-function deleteHistoryItem(id) {
-    if(!confirm('حذف شود؟')) return;
-    state.history = state.history.filter(x => x.id !== id);
-    localStorage.setItem('ultima_history', JSON.stringify(state.history));
-    renderHistory();
-}
-
-function clearHistory() {
-    if(!confirm('همه تاریخچه پاک شود؟')) return;
-    state.history = [];
-    localStorage.setItem('ultima_history', JSON.stringify([]));
-    renderHistory();
-}
-
-function toast(msg) {
-    const t = document.getElementById('toast');
-    t.innerText = msg;
-    t.classList.remove('opacity-0', 'scale-90');
-    setTimeout(() => t.classList.add('opacity-0', 'scale-90'), 3000);
-}
-
-async function pasteText() {
-    try {
-        const text = await navigator.clipboard.readText();
-        document.getElementById('sourceText').value = text;
-        saveState(); // Save immediately after paste
-        toast("متن جایگذاری شد");
-    } catch (e) { toast("دسترسی به کلیپ‌بورد ندارید"); }
-}
-
-function clearText() {
-    document.getElementById('sourceText').value = '';
-    saveState(); // Save empty state
-    toast("پاک شد");
-}
-
-function copyResult() {
-    const t = document.getElementById('resultText').innerText;
-    if(t.includes("نتیجه هوشمند")) return;
-    navigator.clipboard.writeText(t).then(() => toast("کپی شد"));
 }
 
 function updateDir() {
@@ -374,35 +198,170 @@ function updateDir() {
     res.className = `p-8 max-h-[500px] overflow-y-auto scroller relative z-10 ${rtl ? 'text-right' : 'text-left'}`;
 }
 
-async function fetchModels(p) {
-    toast("در حال دریافت لیست مدل‌ها...");
-    const keys = getKeys(p === 'gemini' ? 'gemini' : 'or');
-    if(keys.length === 0) return toast("لطفاً حداقل یک کلید API وارد کنید");
+document.getElementById('translateBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('translateBtn');
+    const src = document.getElementById('sourceText').value.trim();
+    const from = document.getElementById('sourceLang').value;
+    const to = document.getElementById('targetLang').value;
+    const tone = document.getElementById('translationTone').value;
+    const out = document.getElementById('resultText');
+    const wrap = document.getElementById('resultWrapper');
 
-    const key = keys[0]; // Use first key for syncing
+    if (!src) return toast("متنی وارد کنید");
+
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin w-6 h-6"></i> در حال پردازش...`;
+    
+    const prompt = `Translate this text from "${from}" to "${to}". Tone: ${tone}. Output ONLY translation: ${src}`;
+
     try {
-        if (p === 'gemini') {
-            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
-            const d = await r.json();
-            if(d.models) {
-                const s = document.getElementById('geminiModel'); s.innerHTML = '';
-                d.models.forEach(m => {
-                    if(m.supportedGenerationMethods.includes('generateContent')) 
-                        s.add(new Option(m.name.split('/')[1], m.name.split('/')[1]));
+        let result = "";
+        if (state.provider === 'gemini') result = await callAPI('gemini', prompt);
+        else result = await callAPI('or', prompt);
+        
+        wrap.classList.remove('hidden');
+        out.innerText = result;
+        out.classList.remove('opacity-40', 'italic');
+        out.classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
+        
+        state.history.unshift({id: Date.now(), src, res: result, from, to, date: new Date().toLocaleTimeString('fa-IR')});
+        if(state.history.length > 50) state.history.pop();
+        
+        saveState();
+
+    } catch (e) {
+        console.error(e);
+        wrap.classList.remove('hidden');
+        out.innerText = "خطا در ترجمه. لطفاً کلید API را بررسی کنید.";
+        toast("خطا در برقراری ارتباط");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="relative z-10 flex items-center gap-3"><i data-lucide="zap" class="w-6 h-6"></i> ترجمه هوشمند</span><div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>`;
+        lucide.createIcons();
+    }
+});
+
+// Generic API Caller with Failover
+async function callAPI(type, prompt) {
+    // Get valid non-empty keys only
+    const keys = Array.from(document.querySelectorAll(`.${type}-key-input`))
+                      .map(i => i.value.trim())
+                      .filter(k => k !== '');
+                      
+    if(keys.length === 0) throw new Error("No Keys");
+
+    const model = document.getElementById(type === 'gemini' ? 'geminiModel' : 'orModel').value;
+
+    for (const key of keys) {
+        try {
+            let res, data;
+            if(type === 'gemini') {
+                res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
+                data = await res.json();
+                if(!res.ok) throw new Error();
+                return data.candidates[0].content.parts[0].text.trim();
+            } else {
+                res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: 'POST', headers: {'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json'},
+                    body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }] })
+                });
+                data = await res.json();
+                if(!res.ok) throw new Error();
+                return data.choices[0].message.content.trim();
+            }
+        } catch(e) { continue; }
+    }
+    throw new Error("All keys failed");
+}
+
+// Utils
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.classList.remove('opacity-0', 'scale-90');
+    setTimeout(() => t.classList.add('opacity-0', 'scale-90'), 3000);
+}
+
+function clearText() { document.getElementById('sourceText').value = ''; saveState(); toast("پاک شد"); }
+async function pasteText() { 
+    try { 
+        document.getElementById('sourceText').value = await navigator.clipboard.readText(); 
+        saveState(); toast("چسبانده شد"); 
+    } catch(e){ toast("عدم دسترسی"); } 
+}
+function copyResult() { navigator.clipboard.writeText(document.getElementById('resultText').innerText); toast("کپی شد"); }
+
+function renderHistory() {
+    const list = document.getElementById('historyList');
+    const empty = document.getElementById('emptyState');
+    list.innerHTML = '';
+    if(state.history.length === 0) { empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    state.history.forEach(h => {
+        const div = document.createElement('div');
+        div.className = "glass-panel p-5 rounded-[2rem] space-y-2 relative group hover:scale-[1.01] transition-all";
+        div.innerHTML = `
+            <div class="flex justify-between opacity-50 text-[10px] font-black"><span>${h.from} > ${h.to}</span><span>${h.date}</span></div>
+            <p class="text-xs opacity-60 truncate">${h.src}</p>
+            <p class="font-bold text-indigo-600 dark:text-indigo-400">${h.res}</p>
+            <div class="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="restore('${h.id}')" class="text-xs font-bold bg-indigo-600 text-white px-4 py-2 rounded-xl">استفاده</button>
+                <button onclick="delHistory('${h.id}')" class="text-xs font-bold text-red-500 border border-red-500/30 px-4 py-2 rounded-xl">حذف</button>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function restore(id) {
+    const h = state.history.find(x => x.id == id);
+    if(h) {
+        document.getElementById('sourceText').value = h.src;
+        document.getElementById('resultText').innerText = h.res;
+        document.getElementById('resultWrapper').classList.remove('hidden');
+        switchTab('translate');
+        saveState();
+    }
+}
+
+function delHistory(id) {
+    state.history = state.history.filter(x => x.id != id);
+    saveState(); renderHistory();
+}
+
+function clearHistory() {
+    state.history = []; saveState(); renderHistory();
+}
+
+async function fetchModels(type) {
+    toast("در حال دریافت...");
+    // Just grab the first available key for syncing
+    const key = document.querySelector(`.${type}-key-input`).value.trim();
+    if(!key) return toast("کلید API وارد نشده است");
+    
+    try {
+        if(type === 'gemini') {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+            const data = await res.json();
+            if(data.models) {
+                const s = document.getElementById('geminiModel'); s.innerHTML = '';
+                data.models.forEach(m => { if(m.supportedGenerationMethods.includes('generateContent')) s.add(new Option(m.name.split('/')[1], m.name.split('/')[1])) });
                 saveState();
             }
         } else {
-            const r = await fetch("https://openrouter.ai/api/v1/models");
-            const d = await r.json();
-            if(d.data) {
+            const res = await fetch("https://openrouter.ai/api/v1/models");
+            const data = await res.json();
+            if(data.data) {
                 const s = document.getElementById('orModel'); s.innerHTML = '';
-                d.data.forEach(m => s.add(new Option(m.name, m.id)));
+                data.data.forEach(m => s.add(new Option(m.name, m.id)));
                 saveState();
             }
         }
-        toast("مدل‌ها بروز شدند");
-    } catch (e) { toast("خطا در دریافت مدل‌ها"); }
+        toast("لیست مدل‌ها بروز شد");
+    } catch(e) { toast("خطا در دریافت لیست"); }
 }
 
 
