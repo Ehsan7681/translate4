@@ -108,13 +108,17 @@ function saveState() {
         targetLang: document.getElementById('targetLang').value,
         tone: document.getElementById('translationTone').value,
         gList: document.getElementById('geminiModel').innerHTML,
-        oList: document.getElementById('orModel').innerHTML
+        oList: document.getElementById('orModel').innerHTML,
+        // Saving Current Texts
+        sourceText: document.getElementById('sourceText').value,
+        resultText: document.getElementById('resultText').innerText,
+        resultVisible: !document.getElementById('resultWrapper').classList.contains('hidden')
     };
-    localStorage.setItem('ultima_settings_v2', JSON.stringify(data));
+    localStorage.setItem('ultima_settings_final', JSON.stringify(data));
 }
 
 function loadState() {
-    const data = JSON.parse(localStorage.getItem('ultima_settings_v2'));
+    const data = JSON.parse(localStorage.getItem('ultima_settings_final'));
     if (data) {
         state.geminiKeys = data.geminiKeys || [''];
         state.orKeys = data.orKeys || [''];
@@ -128,6 +132,17 @@ function loadState() {
         document.getElementById('targetLang').value = data.targetLang;
         document.getElementById('translationTone').value = data.tone || 'neutral';
         
+        // Restore Texts
+        if(data.sourceText) document.getElementById('sourceText').value = data.sourceText;
+        if(data.resultText && data.resultText !== "نتیجه هوشمند در اینجا ظاهر می‌شود...") {
+            document.getElementById('resultText').innerText = data.resultText;
+            document.getElementById('resultText').classList.remove('opacity-40', 'italic');
+            document.getElementById('resultText').classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
+        }
+        if(data.resultVisible && data.sourceText) {
+            document.getElementById('resultWrapper').classList.remove('hidden');
+        }
+
         setProvider(data.provider || 'gemini');
     }
     renderKeys();
@@ -188,6 +203,8 @@ document.getElementById('translateBtn').addEventListener('click', async () => {
         output.classList.remove('opacity-40', 'italic');
         output.classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
         
+        saveState(); // Save result immediately
+
         state.history.unshift({
             id: Date.now(),
             src, res: result, from, to, date: new Date().toLocaleTimeString('fa-IR')
@@ -296,8 +313,15 @@ function restoreHistory(id) {
         document.getElementById('sourceLang').value = h.from;
         document.getElementById('targetLang').value = h.to;
         document.getElementById('resultWrapper').classList.remove('hidden');
+        
+        // Ensure result text is styled correctly upon restore
+        const out = document.getElementById('resultText');
+        out.classList.remove('opacity-40', 'italic');
+        out.classList.add('font-bold', 'text-indigo-900', 'dark:text-indigo-100');
+
         updateDir();
         switchTab('translate');
+        saveState(); // Save current state as restored
     }
 }
 
@@ -326,12 +350,14 @@ async function pasteText() {
     try {
         const text = await navigator.clipboard.readText();
         document.getElementById('sourceText').value = text;
+        saveState(); // Save immediately after paste
         toast("متن جایگذاری شد");
     } catch (e) { toast("دسترسی به کلیپ‌بورد ندارید"); }
 }
 
 function clearText() {
     document.getElementById('sourceText').value = '';
+    saveState(); // Save empty state
     toast("پاک شد");
 }
 
@@ -378,3 +404,5 @@ async function fetchModels(p) {
         toast("مدل‌ها بروز شدند");
     } catch (e) { toast("خطا در دریافت مدل‌ها"); }
 }
+
+
