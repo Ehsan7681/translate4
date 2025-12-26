@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultima Translator</title>
-    <meta name="description" content="مترجم هوشمند با قابلیت ذخیره‌سازی کامل و پشتیبانی از چندین API">
+    <title>Alpha Translator</title>
+    <meta name="description" content="مترجم هوشمند آلفا با قابلیت ذخیره‌سازی و پشتیبانی از چندین API">
     
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
@@ -56,10 +56,10 @@
         <div class="glass-panel mx-auto max-w-2xl rounded-[2rem] px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-                    <i data-lucide="brain-circuit" class="w-7 h-7"></i>
+                    <i data-lucide="cpu" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Ultima Translator</h1>
+                    <h1 class="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Alpha Translator</h1>
                     <div class="flex items-center gap-1.5 opacity-60">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                         <p class="text-[9px] font-bold uppercase tracking-[0.2em]">Designed by Ehsan Shamsi</p>
@@ -96,6 +96,17 @@
                             <option value="zh">中文</option>
                             <option value="ja">日本語</option>
                             <option value="ko">한국어</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="pt">Português</option>
+                            <option value="nl">Nederlands</option>
+                            <option value="sv">Svenska</option>
+                            <option value="pl">Polski</option>
+                            <option value="uk">Українська</option>
+                            <option value="el">Ελληνικά</option>
+                            <option value="ro">Română</option>
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="th">ไทย</option>
+                            <option value="id">Bahasa Indonesia</option>
                         </select>
                     </div>
                 </div>
@@ -116,8 +127,22 @@
                             <option value="de">Deutsch</option>
                             <option value="fr">Français</option>
                             <option value="es">Español</option>
+                            <option value="it">Italiano</option>
                             <option value="ru">Русский</option>
+                            <option value="zh">中文</option>
                             <option value="ja">日本語</option>
+                            <option value="ko">한국어</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="pt">Português</option>
+                            <option value="nl">Nederlands</option>
+                            <option value="sv">Svenska</option>
+                            <option value="pl">Polski</option>
+                            <option value="uk">Українська</option>
+                            <option value="el">Ελληνικά</option>
+                            <option value="ro">Română</option>
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="th">ไทย</option>
+                            <option value="id">Bahasa Indonesia</option>
                         </select>
                     </div>
                 </div>
@@ -161,16 +186,17 @@
             </div>
         </section>
 
-        <!-- HISTORY -->
+        <!-- HISTORY (FIXED LAYOUT) -->
         <section id="historySection" class="hidden space-y-6">
-            <div class="glass-panel p-6 rounded-[2.5rem] flex justify-between items-center sticky top-24 z-20">
+            <div class="glass-panel p-6 rounded-[2.5rem] flex justify-between items-center">
                 <h2 class="text-xl font-black flex items-center gap-3">
                     <i data-lucide="history" class="text-indigo-500"></i>
                     تاریخچه
                 </h2>
-                <button onclick="clearHistory()" class="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs font-black rounded-xl hover:bg-red-500 transition-all">حذف همه</button>
+                <button onclick="clearHistory()" class="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs font-black rounded-xl hover:bg-red-500 hover:text-white transition-all">حذف همه</button>
             </div>
-            <div id="historyList" class="grid gap-5 pb-8"></div>
+            <!-- Changed to Flex Column for better stability -->
+            <div id="historyList" class="flex flex-col gap-4 pb-20"></div>
             <div id="emptyState" class="py-24 text-center opacity-30 hidden">
                 <i data-lucide="file-x-2" class="w-24 h-24 mx-auto mb-6"></i>
                 <p class="font-black text-lg">خالی</p>
@@ -186,16 +212,26 @@
                 </h2>
                 <div class="relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                     <select id="translationTone" onchange="saveState()" class="w-full bg-transparent p-5 text-sm font-bold outline-none cursor-pointer dark:text-white appearance-none">
-                        <option value="neutral">خنثی (معمولی)</option>
+                        <option value="neutral">خنثی (پیش‌فرض)</option>
                         <option value="formal">رسمی و اداری</option>
                         <option value="friendly">دوستانه و صمیمی</option>
                         <option value="academic">علمی و آکادمیک</option>
+                        <option value="business">تجاری و کسب‌وکار</option>
                         <option value="slang">عامیانه و خیابانی</option>
-                        <option value="creative">خلاقانه و ادبی</option>
-                        <option value="business">تجاری</option>
-                        <option value="poetic">شاعرانه</option>
-                        <option value="humorous">طنزآمیز</option>
-                        <option value="brief">خلاصه و کوتاه</option>
+                        <option value="creative">خلاقانه و داستانی</option>
+                        <option value="poetic">شاعرانه و ادبی</option>
+                        <option value="journalistic">روزنامه‌نگاری و خبری</option>
+                        <option value="medical">پزشکی و سلامت</option>
+                        <option value="legal">حقوقی و قضایی</option>
+                        <option value="persuasive">متقاعدکننده و تبلیغاتی</option>
+                        <option value="emotional">احساسی</option>
+                        <option value="witty">شوخ‌طبع و زیرکانه</option>
+                        <option value="sarcastic">کنایه‌آمیز</option>
+                        <option value="brief">خلاصه و مفید</option>
+                        <option value="detailed">با جزئیات کامل</option>
+                        <option value="epic">حماسی و سینمایی</option>
+                        <option value="philosophical">فلسفی و عمیق</option>
+                        <option value="old">کلاسیک و قدیمی</option>
                     </select>
                     <i data-lucide="chevron-down" class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 pointer-events-none"></i>
                 </div>
@@ -208,7 +244,7 @@
                 </h2>
                 
                 <div class="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] flex gap-2">
-                    <button onclick="setProvider('gemini')" id="tab-gemini" class="flex-1 py-4 rounded-[1.5rem] text-sm font-black transition-all bg-indigo-600 text-white shadow-lg">Gemini</button>
+                    <button onclick="setProvider('gemini')" id="tab-gemini" class="flex-1 py-4 rounded-[1.5rem] text-sm font-black transition-all bg-indigo-600 text-white shadow-lg">Google Gemini</button>
                     <button onclick="setProvider('openrouter')" id="tab-or" class="flex-1 py-4 rounded-[1.5rem] text-sm font-black transition-all opacity-50">OpenRouter</button>
                 </div>
 

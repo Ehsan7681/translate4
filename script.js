@@ -1,7 +1,6 @@
 lucide.createIcons();
 
-// --- Configuration ---
-const STORAGE_KEY = 'ultima_data_v3';
+const STORAGE_KEY = 'alpha_data_v1';
 
 let state = {
     provider: 'gemini',
@@ -11,9 +10,8 @@ let state = {
     orKeys: ['']
 };
 
-// --- Theme Engine ---
 function initTheme() {
-    const savedTheme = localStorage.getItem('ultima_theme') || 'system';
+    const savedTheme = localStorage.getItem('alpha_theme') || 'system';
     state.theme = savedTheme;
     const isDark = savedTheme === 'dark' || (savedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', isDark);
@@ -24,12 +22,11 @@ function initTheme() {
 document.getElementById('themeToggle').addEventListener('click', () => {
     const isDark = document.documentElement.classList.toggle('dark');
     state.theme = isDark ? 'dark' : 'light';
-    localStorage.setItem('ultima_theme', state.theme);
+    localStorage.setItem('alpha_theme', state.theme);
     initTheme();
 });
 initTheme();
 
-// --- Navigation ---
 function switchTab(tabId) {
     ['translate', 'history', 'settings'].forEach(id => {
         document.getElementById(`${id}Section`).classList.add('hidden');
@@ -62,11 +59,8 @@ function setProvider(p) {
     saveState();
 }
 
-// --- Key Management (Fixed) ---
 function addKeyInput(type, value = '') {
     const container = document.getElementById(type === 'gemini' ? 'geminiKeysContainer' : 'orKeysContainer');
-    
-    // Create elements using DOM API to ensure value binding works
     const wrapper = document.createElement('div');
     wrapper.className = "flex gap-2 items-center animate-in fade-in slide-in-from-top-2 duration-300";
     
@@ -74,8 +68,8 @@ function addKeyInput(type, value = '') {
     input.type = "password";
     input.className = `${type}-key-input w-full bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-${type === 'gemini' ? 'indigo' : 'purple'}-500 font-mono text-sm shadow-inner`;
     input.placeholder = "Enter API Key...";
-    input.value = value; // Directly set property
-    input.oninput = saveState; // Auto save on typing
+    input.value = value; 
+    input.oninput = saveState;
 
     const btn = document.createElement('button');
     btn.className = "p-4 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm";
@@ -85,20 +79,17 @@ function addKeyInput(type, value = '') {
     wrapper.appendChild(input);
     wrapper.appendChild(btn);
     container.appendChild(wrapper);
-    
     lucide.createIcons();
 }
 
 function getKeys(type) {
-    // Return all keys including empty ones so user doesn't lose empty fields while typing
     return Array.from(document.querySelectorAll(`.${type}-key-input`)).map(i => i.value);
 }
 
-// --- Persistence Engine ---
 function saveState() {
     try {
         const data = {
-            geminiKeys: getKeys('gemini').filter(k => k.trim() !== ''), // Save only valid keys
+            geminiKeys: getKeys('gemini').filter(k => k.trim() !== ''),
             orKeys: getKeys('or').filter(k => k.trim() !== ''),
             geminiModel: document.getElementById('geminiModel').value,
             orModel: document.getElementById('orModel').value,
@@ -109,7 +100,6 @@ function saveState() {
             gList: document.getElementById('geminiModel').innerHTML,
             oList: document.getElementById('orModel').innerHTML,
             history: state.history,
-            // Texts
             sourceText: document.getElementById('sourceText').value,
             resultText: document.getElementById('resultText').innerText,
             isResultVisible: !document.getElementById('resultWrapper').classList.contains('hidden')
@@ -122,15 +112,12 @@ function loadState() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) {
-            // First run defaults
             addKeyInput('gemini'); 
             addKeyInput('or');
             return;
         }
-
         const data = JSON.parse(raw);
         
-        // Restore Keys
         const gKeys = (data.geminiKeys && data.geminiKeys.length) ? data.geminiKeys : [''];
         document.getElementById('geminiKeysContainer').innerHTML = '';
         gKeys.forEach(k => addKeyInput('gemini', k));
@@ -139,24 +126,18 @@ function loadState() {
         document.getElementById('orKeysContainer').innerHTML = '';
         oKeys.forEach(k => addKeyInput('or', k));
 
-        // Restore Models Lists
         if (data.gList) document.getElementById('geminiModel').innerHTML = data.gList;
         if (data.oList) document.getElementById('orModel').innerHTML = data.oList;
 
-        // Restore Settings
         if(data.geminiModel) document.getElementById('geminiModel').value = data.geminiModel;
         if(data.orModel) document.getElementById('orModel').value = data.orModel;
         if(data.sourceLang) document.getElementById('sourceLang').value = data.sourceLang;
         if(data.targetLang) document.getElementById('targetLang').value = data.targetLang;
         if(data.tone) document.getElementById('translationTone').value = data.tone;
         
-        // Restore Provider
         setProvider(data.provider || 'gemini');
-
-        // Restore History
         state.history = data.history || [];
 
-        // Restore Texts
         if(data.sourceText) document.getElementById('sourceText').value = data.sourceText;
         if(data.resultText && data.resultText !== '...') {
             const out = document.getElementById('resultText');
@@ -167,21 +148,16 @@ function loadState() {
         if(data.isResultVisible && data.sourceText) {
             document.getElementById('resultWrapper').classList.remove('hidden');
         }
-
         updateDir();
-
     } catch (e) {
         console.error("Load failed", e);
-        // Fallback
         addKeyInput('gemini');
         addKeyInput('or');
     }
 }
 
-// Initialize on Load
 window.addEventListener('DOMContentLoaded', loadState);
 
-// --- Core App Logic ---
 function swapLanguages() {
     const s = document.getElementById('sourceLang');
     const t = document.getElementById('targetLang');
@@ -241,9 +217,7 @@ document.getElementById('translateBtn').addEventListener('click', async () => {
     }
 });
 
-// Generic API Caller with Failover
 async function callAPI(type, prompt) {
-    // Get valid non-empty keys only
     const keys = Array.from(document.querySelectorAll(`.${type}-key-input`))
                       .map(i => i.value.trim())
                       .filter(k => k !== '');
@@ -277,7 +251,6 @@ async function callAPI(type, prompt) {
     throw new Error("All keys failed");
 }
 
-// Utils
 function toast(msg) {
     const t = document.getElementById('toast');
     t.innerText = msg;
@@ -306,7 +279,7 @@ function renderHistory() {
         div.innerHTML = `
             <div class="flex justify-between opacity-50 text-[10px] font-black"><span>${h.from} > ${h.to}</span><span>${h.date}</span></div>
             <p class="text-xs opacity-60 truncate">${h.src}</p>
-            <p class="font-bold text-indigo-600 dark:text-indigo-400">${h.res}</p>
+            <p class="font-bold text-indigo-600 dark:text-indigo-400 break-words">${h.res}</p>
             <div class="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onclick="restore('${h.id}')" class="text-xs font-bold bg-indigo-600 text-white px-4 py-2 rounded-xl">استفاده</button>
                 <button onclick="delHistory('${h.id}')" class="text-xs font-bold text-red-500 border border-red-500/30 px-4 py-2 rounded-xl">حذف</button>
@@ -338,7 +311,6 @@ function clearHistory() {
 
 async function fetchModels(type) {
     toast("در حال دریافت...");
-    // Just grab the first available key for syncing
     const key = document.querySelector(`.${type}-key-input`).value.trim();
     if(!key) return toast("کلید API وارد نشده است");
     
