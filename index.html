@@ -161,7 +161,7 @@
                 </div>
             </div>
 
-            <button id="translateBtn" class="w-full py-6 rounded-[2.5rem] btn-gradient text-white font-black text-xl flex items-center justify-center gap-3 relative overflow-hidden group shadow-neon">
+            <button id="translateBtn" class="w-full py-6 rounded-[2.5rem] btn-gradient text-white font-black text-xl flex items-center justify-center gap-3 relative overflow-hidden group shadow-neon active:scale-95 transition-transform">
                 <span class="relative z-10 flex items-center gap-3">
                     <i data-lucide="zap" class="w-7 h-7 group-hover:fill-white transition-all"></i>
                     ترجمه هوشمند
@@ -186,7 +186,7 @@
             </div>
         </section>
 
-        <!-- HISTORY (FIXED LAYOUT) -->
+        <!-- HISTORY (FIXED LAYOUT & VISIBLE BUTTONS) -->
         <section id="historySection" class="hidden space-y-6">
             <div class="glass-panel p-6 rounded-[2.5rem] flex justify-between items-center">
                 <h2 class="text-xl font-black flex items-center gap-3">
@@ -195,8 +195,7 @@
                 </h2>
                 <button onclick="clearHistory()" class="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs font-black rounded-xl hover:bg-red-500 hover:text-white transition-all">حذف همه</button>
             </div>
-            <!-- Changed to Flex Column for better stability -->
-            <div id="historyList" class="flex flex-col gap-4 pb-20"></div>
+            <div id="historyList" class="flex flex-col gap-4 pb-24"></div>
             <div id="emptyState" class="py-24 text-center opacity-30 hidden">
                 <i data-lucide="file-x-2" class="w-24 h-24 mx-auto mb-6"></i>
                 <p class="font-black text-lg">خالی</p>

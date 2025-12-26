@@ -275,18 +275,27 @@ function renderHistory() {
     empty.classList.add('hidden');
     state.history.forEach(h => {
         const div = document.createElement('div');
-        div.className = "glass-panel p-5 rounded-[2rem] space-y-2 relative group hover:scale-[1.01] transition-all";
+        div.className = "glass-panel p-5 rounded-[2rem] space-y-3 relative transition-all";
         div.innerHTML = `
-            <div class="flex justify-between opacity-50 text-[10px] font-black"><span>${h.from} > ${h.to}</span><span>${h.date}</span></div>
+            <div class="flex justify-between opacity-50 text-[10px] font-black">
+                <span>${h.from} > ${h.to}</span>
+                <span>${h.date}</span>
+            </div>
             <p class="text-xs opacity-60 truncate">${h.src}</p>
-            <p class="font-bold text-indigo-600 dark:text-indigo-400 break-words">${h.res}</p>
-            <div class="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onclick="restore('${h.id}')" class="text-xs font-bold bg-indigo-600 text-white px-4 py-2 rounded-xl">استفاده</button>
-                <button onclick="delHistory('${h.id}')" class="text-xs font-bold text-red-500 border border-red-500/30 px-4 py-2 rounded-xl">حذف</button>
+            <p class="font-bold text-indigo-600 dark:text-indigo-400 break-words leading-relaxed">${h.res}</p>
+            
+            <div class="flex gap-3 pt-2">
+                <button onclick="restore('${h.id}')" class="flex-1 text-xs font-bold bg-indigo-600 text-white py-3 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <i data-lucide="refresh-ccw" class="w-3 h-3"></i> استفاده
+                </button>
+                <button onclick="delHistory('${h.id}')" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-5 py-3 rounded-xl active:scale-95 transition-transform flex items-center justify-center">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
             </div>
         `;
         list.appendChild(div);
     });
+    lucide.createIcons();
 }
 
 function restore(id) {
